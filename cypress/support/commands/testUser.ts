@@ -175,7 +175,7 @@ export const createTestUser = ({
 				}
 				const idapiUserId = JSON.parse(atob(guUCookie.value.split('.')[0]))[0];
 				return cy.wrap({
-					emailAddress: finalEmail,
+					emailAddress: res.body.emailAddress as string,
 					cookies: res.body.values as IDAPITestUserResponse,
 					finalPassword,
 					idapiUserId,
