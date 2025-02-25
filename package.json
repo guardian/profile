@@ -123,7 +123,7 @@
 		"@emotion/react": "^11.14.0",
 		"@faire/mjml-react": "^3.5.0",
 		"@guardian/ab-core": "8.0.1",
-		"@guardian/libs": "^21.2.0",
+		"@guardian/libs": "^21.3.0",
 		"@guardian/source": "^8.0.2",
 		"@guardian/source-development-kitchen": "^15.0.1",
 		"@okta/jwt-verifier": "^4.0.1",
