@@ -188,29 +188,6 @@ Resources:
                   - ssmmessages:OpenControlChannel
                   - ssmmessages:OpenDataChannel
                 Resource: '*'
-  GithubActionsSESSendEmailsRole:
-    Type: AWS::IAM::Role
-    Condition: NotIsProd
-    Properties:
-      RoleName: GithubActionsSESSendEmailsRole
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Action: sts:AssumeRoleWithWebIdentity
-            Principal:
-              Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
-            Condition:
-              StringLike:
-                # All GitHub Actions running from the guardian/gateway repository.
-                token.actions.githubusercontent.com:sub: !Sub repo:guardian/gateway:*
-      Policies:
-        - PolicyName: SendEmailSES
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action: ses:SendEmail
-                Resource: '*'
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:

@@ -52,7 +52,9 @@ exports[`The IdentityGateway stack matches the snapshot 1`] = `
     },
   },
   "Metadata": {
-    "gu:cdk:constructs": [],
+    "gu:cdk:constructs": [
+      "GuRole",
+    ],
     "gu:cdk:version": "TEST",
   },
   "Parameters": {
@@ -815,8 +817,7 @@ exports[`The IdentityGateway stack matches the snapshot 1`] = `
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
-    "GithubActionsSESSendEmailsRole": {
-      "Condition": "NotIsProd",
+    "GithubActionsSESSendEmailsRole3ACDD4F9": {
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -824,19 +825,27 @@ exports[`The IdentityGateway stack matches the snapshot 1`] = `
               "Action": "sts:AssumeRoleWithWebIdentity",
               "Condition": {
                 "StringLike": {
-                  "token.actions.githubusercontent.com:sub": {
-                    "Fn::Sub": "repo:guardian/gateway:*",
-                  },
+                  "actions.githubusercontent.com:sub": "repo:guardian/gateway:*",
                 },
               },
               "Effect": "Allow",
               "Principal": {
                 "Federated": {
-                  "Fn::Sub": "arn:aws:iam::\${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com",
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:iam::",
+                      {
+                        "Ref": "AWS::AccountId",
+                      },
+                      ":oidc-provider/token.actions.githubusercontent.com",
+                    ],
+                  ],
                 },
               },
             },
           ],
+          "Version": "2012-10-17",
         },
         "Policies": [
           {
