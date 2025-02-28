@@ -81,6 +81,7 @@ export const scopesForSelfServiceDeletion: Scopes[] = [
  * @param redirectUri - the redirect uri to use for the /authorize endpoint
  * @param scopes (optional) - any scopes to use for the /authorize endpoint, defaults to ['openid']
  * @param sessionToken (optional) - if provided, we'll use this to set the session cookie
+ * @param login_hint (optional) - if provided, we'll use this to set the login_hint parameter, used for google one tap login to automatically authenticate as the user
  */
 export interface PerformAuthorizationCodeFlowOptions {
 	closeExistingSession?: boolean;
@@ -92,6 +93,7 @@ export interface PerformAuthorizationCodeFlowOptions {
 	redirectUri: string;
 	scopes: Scopes[];
 	sessionToken?: string | null;
+	login_hint?: string;
 }
 
 /**
@@ -117,6 +119,7 @@ export const performAuthorizationCodeFlow = async (
 		prompt,
 		scopes = ['openid'],
 		redirectUri,
+		login_hint,
 		extraData,
 	}: PerformAuthorizationCodeFlowOptions,
 ) => {
@@ -150,9 +153,9 @@ export const performAuthorizationCodeFlow = async (
 	// generate the /authorize endpoint url which we'll redirect the user too
 	const authorizeUrl = OpenIdClient.authorizationUrl({
 		// Prompt for 'login' if the idp is provided to make sure the user sees
-		// the social provider login page
+		// the social provider login page, but only if login_hint is not provided
 		// otherwise we'll use the prompt parameter provided
-		prompt: idp ? 'login' : prompt,
+		prompt: idp && !login_hint ? 'login' : prompt,
 		// The sessionToken from authentication to exchange for session cookie
 		sessionToken,
 		// we send the generated stateParam as the state parameter
@@ -163,6 +166,8 @@ export const performAuthorizationCodeFlow = async (
 		redirect_uri: redirectUri,
 		// the identity provider if doing social login
 		idp,
+		// the login_hint is used for google one tap login
+		login_hint,
 	});
 
 	// redirect the user to the /authorize endpoint

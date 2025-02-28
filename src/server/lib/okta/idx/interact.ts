@@ -50,12 +50,14 @@ export const interact = async (
 		closeExistingSession,
 		doNotSetLastAccessCookie = false,
 		extraData,
+		login_hint,
 	}: Pick<
 		PerformAuthorizationCodeFlowOptions,
 		| 'confirmationPagePath'
 		| 'closeExistingSession'
 		| 'doNotSetLastAccessCookie'
 		| 'extraData'
+		| 'login_hint'
 	>,
 ): Promise<[InteractResponse, AuthorizationState]> => {
 	try {
@@ -113,6 +115,8 @@ export const interact = async (
 			code_challenge_method: 'S256',
 			// we send the generated stateParam as the state parameter
 			state: authState.stateParam,
+			// todo: test login_hint
+			login_hint,
 		};
 
 		const authorizationSearchParams = new URLSearchParams(

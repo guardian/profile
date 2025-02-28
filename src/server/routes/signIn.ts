@@ -54,6 +54,7 @@ import {
 	oktaSignInControllerErrorHandler,
 } from '@/server/controllers/signInControllers';
 import { convertExpiresAtToExpiryTimeInMs } from '@/server/lib/okta/idx/shared/convertExpiresAtToExpiryTimeInMs';
+import OktaJwtVerifier from '@okta/jwt-verifier';
 
 const { okta, accountManagementUrl, defaultReturnUri, passcodesEnabled } =
 	getConfiguration();
@@ -570,6 +571,13 @@ router.get(
 	},
 );
 
+const googleJwtVerifier = new OktaJwtVerifier({
+	issuer: 'https://accounts.google.com',
+	clientId:
+		'774465807556-pkevncqpfs9486ms0bo5q1f2g9vhpior.apps.googleusercontent.com',
+	jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
+});
+
 router.get(
 	'/signin/:social',
 	handleAsyncErrors(async (req: Request, res: ResponseWithRequestState) => {
@@ -590,6 +598,35 @@ router.get(
 				req.params.social,
 				res.locals.ophanConfig.consentUUID,
 			);
+		}
+
+		console.log('got', res.locals.queryParams.got);
+		console.log('socialIdp', idp);
+		if (socialIdp === 'google' && res.locals.queryParams.got) {
+			try {
+				const token = await googleJwtVerifier.verifyIdToken(
+					res.locals.queryParams.got,
+					'774465807556-pkevncqpfs9486ms0bo5q1f2g9vhpior.apps.googleusercontent.com',
+				);
+				console.log('token', token);
+				const email = token.claims.email as string;
+
+				return await performAuthorizationCodeFlow(req, res, {
+					idp,
+					closeExistingSession: true,
+					scopes: scopesForAuthentication,
+					redirectUri: ProfileOpenIdClientRedirectUris.AUTHENTICATION,
+					login_hint: email,
+					extraData: {
+						socialProvider: socialIdp,
+					},
+				});
+			} catch (error) {
+				console.log('error', error);
+			}
+			return res.status(200).json({
+				got: res.locals.queryParams.got,
+			});
 		}
 
 		// OKTA IDX API FLOW
